@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -12,6 +13,15 @@ from schemas import BookCreate, BookUpdate, BookResponse
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Book Tracker API", version="2.0.0")
+
+# Allow the Next.js dev server (localhost:3000) to call this API from the browser.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
