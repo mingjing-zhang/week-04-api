@@ -1,27 +1,17 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
 from typing import Optional
 
-class BookCreate(BaseModel):
-    title: str = Field(min_length=1)
-    author: str = Field(min_length=1)
-    status: str = "want to read"
-    rating: Optional[int] = Field(default=None, ge=1, le=5)
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
+from database import engine, get_db
+from models import Base, Book
+from schemas import BookCreate, BookUpdate, BookResponse
 
-class BookUpdate(BaseModel):
-    status: Optional[str] = None
-    rating: Optional[int] = Field(default=None, ge=1, le=5)
+# Create the books table on startup if it doesn't already exist.
+Base.metadata.create_all(bind=engine)
 
-
-books_db: list[dict] = []
-next_id = 1
-
-app = FastAPI(title="Book Tracker API", version="1.0.0")
-
-
-def _find_book(book_id: int) -> dict | None:
-    return next((b for b in books_db if b["id"] == book_id), None)
+app = FastAPI(title="Book Tracker API", version="2.0.0")
 
 
 @app.get("/")
@@ -34,23 +24,23 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/books")
-def get_books(status: Optional[str] = None):
+@app.get("/books", response_model=list[BookResponse])
+def get_books(status: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(Book)
     if status:
-        return [b for b in books_db if b["status"] == status]
-    return books_db
+        query = query.filter(Book.status == status)
+    return query.all()
+
 
 @app.get("/books/stats")
-def get_stats():
-    total = len(books_db)
-    count_by_status: dict[str, int] = {}
-    for book in books_db:
-        status = book["status"]
-        count_by_status[status] = count_by_status.get(status, 0) + 1
+def get_stats(db: Session = Depends(get_db)):
+    total = db.query(func.count(Book.id)).scalar()
 
-    read_books = [b for b in books_db if b["status"] == "read"]
-    ratings = [b["rating"] for b in read_books if b.get("rating") is not None]
-    average_rating = sum(ratings) / len(ratings) if ratings else 0
+    rows = db.query(Book.status, func.count(Book.id)).group_by(Book.status).all()
+    count_by_status = {status: count for status, count in rows}
+
+    avg = db.query(func.avg(Book.rating)).filter(Book.rating.isnot(None)).scalar()
+    average_rating = float(avg) if avg is not None else 0
 
     return {
         "total": total,
@@ -59,38 +49,41 @@ def get_stats():
     }
 
 
-@app.get("/books/{book_id}")
-def get_book(book_id: int):
-    book = _find_book(book_id)
+@app.get("/books/{book_id}", response_model=BookResponse)
+def get_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return book
 
 
-@app.post("/books", status_code=201)
-def create_book(book: BookCreate):
-    global next_id
-    new_book = {"id": next_id, **book.model_dump()}
-    books_db.append(new_book)
-    next_id += 1
-    return new_book
+@app.post("/books", response_model=BookResponse, status_code=201)
+def create_book(data: BookCreate, db: Session = Depends(get_db)):
+    book = Book(**data.model_dump())
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    return book
 
 
-@app.put("/books/{book_id}")
-def update_book(book_id: int, updates: BookUpdate):
-    book = _find_book(book_id)
+@app.put("/books/{book_id}", response_model=BookResponse)
+def update_book(book_id: int, updates: BookUpdate, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     for field, value in updates.model_dump(exclude_unset=True).items():
         if value is not None:
-            book[field] = value
+            setattr(book, field, value)
+    db.commit()
+    db.refresh(book)
     return book
 
 
 @app.delete("/books/{book_id}")
-def delete_book(book_id: int):
-    book = _find_book(book_id)
+def delete_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
-    books_db.remove(book)
+    db.delete(book)
+    db.commit()
     return {"message": "Book deleted", "id": book_id}
