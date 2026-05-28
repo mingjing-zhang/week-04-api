@@ -1,6 +1,6 @@
 # Week 4 Reflection
 
-Context for these answers: my background is Java EE — Spring + Hibernate, single WAR deployed into Tomcat, JSP rendering on the server. This week is the first time I've put together a modern stack (Next.js + FastAPI + Postgres) end-to-end, and I want to use this reflection to capture both the technical lessons and the architectural shift I'm feeling.
+Context for these answers: I learned Java EE — Spring + Hibernate, WAR into Tomcat, JSP rendering on the server — systematically about 20 years ago. The last 2–3 years I've been using Python, but mostly for Bitcoin scripts and AI demos, not for designed backend systems, so FastAPI and Uvicorn aren't new to me as syntax but I'd never used them to architect anything. What is genuinely new this week is the modern frontend half: Next.js App Router, Server vs Client Components, the build pipeline, Tailwind. So a lot of my energy went into remapping what I already knew from the J2EE days onto the new vocabulary, and I want this reflection to capture those mental-model comparisons rather than just the lab steps.
 
 ## 1. What is the difference between the SQLAlchemy model and the Pydantic schema?
 
@@ -37,7 +37,7 @@ First, internalizing that the browser is hitting **two separate processes** — 
 
 Second, the Server vs Client Component distinction. By default Next.js components render on the server, but anything using `useState`, `useEffect`, `onClick`, or `useRouter` must be marked `"use client"`. The mind-shift is that in one component tree, different components can run in different environments and the framework wires them together. This doesn't have a clean Java analogy — JSF and Vaadin come close but never let a single tree mix server-rendered and client-interactive nodes the way RSC does.
 
-A meta-observation about this transition: I noticed that almost all my Spring/Hibernate operational knowledge (XML config, session management, Maven idioms) had to be set aside this week. The way to write a server now is genuinely different — async event loop instead of one-thread-per-request, type hints + Pydantic instead of compile-time JavaBeans. That said, the higher-level intuitions I picked up in Java — where transaction boundaries should sit, where N+1 queries hide, when to worry about connection pool exhaustion — transferred directly. The vocabulary changed; the architectural questions didn't.
+A meta-observation about this transition: my Spring/Hibernate *operational* knowledge — XML wiring, session lifecycle, Maven idioms — has already been obsolete for years; I left it behind quietly while picking up Python for scripts and AI work. What surprised me this week is that the *judgment* layer I built in the Java days — where transaction boundaries should sit, where N+1 queries hide, when to worry about connection pool exhaustion — transferred directly to thinking about FastAPI + Postgres, and even informs how I evaluate AI-generated code on this new stack. The vocabulary changed (async event loop replacing one-thread-per-request, Pydantic replacing JavaBeans, RSC replacing JSP), but the architectural questions did not. Operational skills had a short half-life; judgment compounded.
 
 ## 5. When does CORS become a problem and why? In your own words.
 
