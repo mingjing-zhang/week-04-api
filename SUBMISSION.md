@@ -1,6 +1,6 @@
 # Week 4 Lab — Submission
 
-**Student:** Mingjing (Aaron) Zhang
+**Student:** Mingjing Zhang
 **Course:** CSE552 — Full Stack Course
 **Lab:** Week 4 — Databases & Full Stack Integration
 **Date:** 2026-05-28
@@ -45,10 +45,10 @@ npm run dev
 
 All screenshots live in the backend repo under [`screenshots/`](https://github.com/mingjing-zhang/week-04-api/tree/main/screenshots).
 
-### Persistence proof (lab requirement #3)
+### Persistence proof (lab submission item 3)
 - [`01-persistence-get-books.png`](https://github.com/mingjing-zhang/week-04-api/blob/main/screenshots/01-persistence-get-books.png) — `GET /books` in Swagger UI returning 3 books after the FastAPI server was restarted. The data survives because PostgreSQL stores it in the `pgdata` Docker volume, not in the app process.
 
-### Full CRUD flow (lab requirement #4)
+### Full CRUD flow (lab submission item 4)
 | # | Screenshot | Step |
 |---|---|---|
 | 02 | [`02-flow-list-page.png`](https://github.com/mingjing-zhang/week-04-api/blob/main/screenshots/02-flow-list-page.png) | `/books` list with existing books |
@@ -69,23 +69,24 @@ Covers all six required questions plus closing observations on the Java EE → m
 
 ---
 
-## 5. Grading Criteria Self-Check
+## 5. Where to find each rubric item
 
-| Criteria | Points | Where |
-|---|---|---|
-| Code split into database.py, models.py, schemas.py, main.py | 10 | Backend repo top-level Python files |
-| PostgreSQL connected correctly via Docker Compose | 10 | [`docker-compose.yml`](https://github.com/mingjing-zhang/week-04-api/blob/main/docker-compose.yml) |
-| All CRUD endpoints working with real database | 15 | [`main.py`](https://github.com/mingjing-zhang/week-04-api/blob/main/main.py) — GET (list+detail+stats), POST, PUT, DELETE |
-| Data persists across server restarts (screenshot) | 10 | Screenshot 01 |
-| `.env` excluded from Git | 5 | [`.gitignore`](https://github.com/mingjing-zhang/week-04-api/blob/main/.gitignore) |
-| CORS configured in backend | 5 | `main.py` — `CORSMiddleware` with `allow_origins=["http://localhost:3000"]` |
-| Books list page fetches and displays from backend | 10 | [`app/books/page.tsx`](https://github.com/mingjing-zhang/week-04-frontend/blob/main/app/books/page.tsx) |
-| Add book form POSTs and updates list | 10 | [`app/books/new/page.tsx`](https://github.com/mingjing-zhang/week-04-frontend/blob/main/app/books/new/page.tsx) |
-| Detail page with update and delete works | 10 | [`app/books/[id]/page.tsx`](https://github.com/mingjing-zhang/week-04-frontend/blob/main/app/books/%5Bid%5D/page.tsx) |
-| Loading and error states handled | 5 | All three pages — `loading`, `error` state, early returns |
-| Environment variable used for API URL | 5 | `process.env.NEXT_PUBLIC_API_URL` referenced in every fetch |
-| Reflection complete | 5 | `reflection.md` answers all 6 questions |
-| **Total** | **100** | |
+A navigation index for the grader — every line from the lab's rubric mapped to the file or location that satisfies it. (Scoring is up to the grader; this is just a "where to look" map.)
+
+| Rubric line | Where in the submission |
+|---|---|
+| Code split into `database.py`, `models.py`, `schemas.py`, `main.py` | Backend repo top-level Python files |
+| PostgreSQL connected via Docker Compose | [`docker-compose.yml`](https://github.com/mingjing-zhang/week-04-api/blob/main/docker-compose.yml) |
+| All CRUD endpoints working with real database | [`main.py`](https://github.com/mingjing-zhang/week-04-api/blob/main/main.py) — GET (list+detail+stats), POST, PUT, DELETE |
+| Data persists across server restarts | Screenshot 01 |
+| `.env` excluded from Git | [`.gitignore`](https://github.com/mingjing-zhang/week-04-api/blob/main/.gitignore) |
+| CORS configured in backend | `main.py` — `CORSMiddleware` with `allow_origins=["http://localhost:3000"]` |
+| Books list page fetches and displays from backend | [`app/books/page.tsx`](https://github.com/mingjing-zhang/week-04-frontend/blob/main/app/books/page.tsx) |
+| Add book form POSTs and updates list | [`app/books/new/page.tsx`](https://github.com/mingjing-zhang/week-04-frontend/blob/main/app/books/new/page.tsx) |
+| Detail page with update and delete works | [`app/books/[id]/page.tsx`](https://github.com/mingjing-zhang/week-04-frontend/blob/main/app/books/%5Bid%5D/page.tsx) |
+| Loading and error states handled | All three pages — `loading`, `error` state, early returns |
+| Environment variable used for API URL | `process.env.NEXT_PUBLIC_API_URL` referenced in every fetch |
+| Reflection complete | `reflection.md` answers all 6 questions |
 
 ---
 
